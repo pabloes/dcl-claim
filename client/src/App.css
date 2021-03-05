@@ -1,0 +1,16 @@
+input {
+  width: 400px;
+}
+
+body {
+  margin: 20px;
+}
+
+section {
+  outline: 1px solid black;
+  padding: 20px;
+}
+
+fieldset {
+  border: none;
+}
