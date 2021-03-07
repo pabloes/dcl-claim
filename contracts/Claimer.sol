@@ -22,8 +22,9 @@ contract Claimer {
     }
        
     function claim(string memory wearableId, uint8 nonceCount, bytes memory signature) public {
-        address winnerAdress = msg.sender;        
+        require(totalMints < mintLimit);                
         require(getClaimCount(wearableId) == nonceCount, "wrong number");        
+        address winnerAdress = msg.sender;
         require(recoverAddressFromTypedSign(signature, wearableId, nonceCount, winnerAdress) == signerAddress, "wrong signature");
         totalMints = totalMints + 1;
         addClaimCount(wearableId);
