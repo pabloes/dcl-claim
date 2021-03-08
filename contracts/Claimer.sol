@@ -16,6 +16,11 @@ contract Claimer {
         collection = _collection;
     }
 
+    function setSigner(address newSigner) public {
+        require(msg.sender == signerAddress);
+        signerAddress = newSigner;
+    }
+
     function setMintLimit(uint8 limit) public {
         require(msg.sender == signerAddress);
         mintLimit = limit;
