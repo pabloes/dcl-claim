@@ -5,55 +5,47 @@ interface ERC721Collection {
 }
 
 contract Claimer {
+    ERC721Collection private collection;
     mapping(address => mapping(string => uint8)) addressClaims; //player -> wearableId -> numClaimed
-    address public signerAddress;
+    address private signerAddress;
     uint8 public mintLimit = 12;
-    uint8 public totalMints = 0;
-    ERC721Collection public collection;
+    uint8 public totalMints = 0; 
     
-    constructor(ERC721Collection _collection) public{
+    constructor(ERC721Collection _collection) public {
         signerAddress = msg.sender;
         collection = _collection;
     }
 
-    function setSigner(address newSigner) public {
+    function setSigner(address newSigner) external {
         require(msg.sender == signerAddress);
         signerAddress = newSigner;
     }
 
-    function setMintLimit(uint8 limit) public {
-        require(msg.sender == signerAddress);
-        mintLimit = limit;
+    function setMintLimit(uint8 newLimit) external {
+        mintLimit = newLimit;
     }
        
-    function claim(string memory wearableId, uint8 nonceCount, bytes memory signature) public {
-        require(totalMints < mintLimit);                
+    function claim(string calldata wearableId, uint8 nonceCount, bytes calldata signature) external {
+        require(totalMint < mintLimit);
         require(getClaimCount(wearableId) == nonceCount, "wrong number");        
         address winnerAdress = msg.sender;
         require(recoverAddressFromTypedSign(signature, wearableId, nonceCount, winnerAdress) == signerAddress, "wrong signature");
-        totalMints = totalMints + 1;
-        addClaimCount(wearableId);
+        totalMints++;
+        addressClaims[msg.sender][wearableId]++;
         collection.issueToken(winnerAdress, wearableId);        
     }
 
-    function recoverAddressFromTypedSign(bytes memory _sign, string memory wearableId, uint8 nonceCount, address winnerAddress) public pure returns (address) {
+    function recoverAddressFromTypedSign(bytes memory _sign, string memory wearableId, uint8 nonceCount, address winnerAddress) private pure returns (address) {
         bytes32 typeHash = keccak256(abi.encodePacked('string wearableId', 'uint8 nonceCount', 'address winnerAddress'));
         bytes32 valueHash = keccak256(abi.encodePacked(wearableId, nonceCount, winnerAddress));
         return recover(keccak256(abi.encodePacked(typeHash, valueHash)), _sign);
     }
 
-    function getClaimCount(string memory wearableId) public view returns (uint8){
+    function getClaimCount(string memory wearableId) private view returns (uint8){
         return addressClaims[msg.sender][wearableId];
     }
-    
-    function addClaimCount(string memory wearableId) public returns (uint8) {
-        uint8 currentCount = addressClaims[msg.sender][wearableId];
-        uint8 newValue = currentCount + 1;
-        addressClaims[msg.sender][wearableId] = newValue;
-        return newValue;
-    }
 
-    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+    function recover(bytes32 hash, bytes memory signature) private pure returns (address) {
         bytes32 r;
         bytes32 s;
         uint8 v;
@@ -71,7 +63,7 @@ contract Claimer {
         }
     }
 
-    function splitSignature(bytes memory sig) internal pure returns (uint8, bytes32, bytes32) {
+    function splitSignature(bytes memory sig) private pure returns (uint8, bytes32, bytes32) {
         require(sig.length == 65);
 
         bytes32 r;
@@ -85,5 +77,4 @@ contract Claimer {
         }
         return (v, r, s);
     }
-    
 }
