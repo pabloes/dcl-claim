@@ -6,9 +6,9 @@ interface ERC721Collection {
 
 contract Claimer {
     ERC721Collection private collection;
-    mapping(address => mapping(string => uint8)) addressClaims; //player -> wearableId -> numClaimed
-    address private signerAddress;
-    uint8 public mintLimit = 12;
+    mapping (address => mapping(string => uint8)) private addressClaims; //player -> wearableId -> numClaimed
+    address public signerAddress;
+    uint8 public mintLimit = 13;
     uint8 public totalMints = 0; 
     
     constructor(ERC721Collection _collection) public {
@@ -26,7 +26,7 @@ contract Claimer {
     }
        
     function claim(string calldata wearableId, uint8 nonceCount, bytes calldata signature) external {
-        require(totalMint < mintLimit);
+        require(totalMints < mintLimit);
         require(getClaimCount(wearableId) == nonceCount, "wrong number");        
         address winnerAdress = msg.sender;
         require(recoverAddressFromTypedSign(signature, wearableId, nonceCount, winnerAdress) == signerAddress, "wrong signature");

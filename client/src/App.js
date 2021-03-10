@@ -22,7 +22,7 @@ class App extends Component {
       const deployedNetwork = ClaimerContract.networks[networkId];
       const claimContract = new web3.eth.Contract(
         ClaimerContract.abi,
-        deployedNetwork && deployedNetwork.address,
+        '0x3F8AfbE953C74f6EB0aBfCc0ebBbb73ba514B206',//TODO put Claimer contract address here
       );
 
 
@@ -100,7 +100,7 @@ class App extends Component {
                 <input type="text" defaultValue={"mf_frogfins"} /><br/><br/>
               
                 <label>winner address</label><br/>
-                <input type="text" defaultValue={"0x0F137E1020CeD7DDA13a0a15Bdd9a2B2959Ec976"} /><br/><br/>
+                <input type="text" defaultValue={"0x908486487568d825B6cbfF2F9b5360a6c7E05BBB"} /><br/><br/>
 
                 <label>nonce count</label><br/>
                 <input type="number" defaultValue={0} /><br/><br/>
