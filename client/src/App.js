@@ -22,7 +22,7 @@ class App extends Component {
       const deployedNetwork = ClaimerContract.networks[networkId];
       const claimContract = new web3.eth.Contract(
         ClaimerContract.abi,
-        '0x3F8AfbE953C74f6EB0aBfCc0ebBbb73ba514B206',//TODO put Claimer contract address here
+        '0xd0e058b79B1C7cb6CC50c93ba2Af3f20308Ae0E7',//TODO put Claimer contract address here
       );
 
 

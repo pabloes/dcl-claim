@@ -5,11 +5,12 @@ interface ERC721Collection {
 }
 
 contract Claimer {
-    ERC721Collection private collection;
+    ERC721Collection public collection;
     mapping (address => mapping(string => uint8)) private addressClaims; //player -> wearableId -> numClaimed
     address public signerAddress;
     uint8 public mintLimit = 13;
-    uint8 private totalMints = 0; 
+    uint8 public totalMints = 0; 
+    bytes32 private typeHash = keccak256(abi.encodePacked('string wearableId', 'uint8 nonceCount', 'address winnerAddress'));
     
     constructor(ERC721Collection _collection) public {
         signerAddress = msg.sender;
@@ -28,22 +29,21 @@ contract Claimer {
        
     function claim(string calldata wearableId, uint8 nonceCount, bytes calldata signature) external {
         require(totalMints < mintLimit);
-        require(getClaimCount(wearableId) == nonceCount, "wrong number");        
-        address winnerAdress = msg.sender;
-        require(recoverAddressFromTypedSign(signature, wearableId, nonceCount, winnerAdress) == signerAddress, "wrong signature");
+        address winnerAddress = msg.sender;
+        require(getClaimCount(wearableId, winnerAddress) == nonceCount, "wrong number");        
+        require(recoverAddressFromTypedSign(signature, wearableId, nonceCount, winnerAddress) == signerAddress, "wrong signature");
         totalMints++;
         addressClaims[msg.sender][wearableId]++;
-        collection.issueToken(winnerAdress, wearableId);        
+        collection.issueToken(winnerAddress, wearableId);        
     }
 
-    function recoverAddressFromTypedSign(bytes memory _sign, string memory wearableId, uint8 nonceCount, address winnerAddress) private pure returns (address) {
-        bytes32 typeHash = keccak256(abi.encodePacked('string wearableId', 'uint8 nonceCount', 'address winnerAddress'));
+    function recoverAddressFromTypedSign(bytes memory _sign, string memory wearableId, uint8 nonceCount, address winnerAddress) private view returns (address) {        
         bytes32 valueHash = keccak256(abi.encodePacked(wearableId, nonceCount, winnerAddress));
         return recover(keccak256(abi.encodePacked(typeHash, valueHash)), _sign);
     }
 
-    function getClaimCount(string memory wearableId) private view returns (uint8){
-        return addressClaims[msg.sender][wearableId];
+    function getClaimCount(string memory wearableId, address winnerAddress) public view returns (uint8){
+        return addressClaims[winnerAddress][wearableId];
     }
 
     function recover(bytes32 hash, bytes memory signature) private pure returns (address) {
