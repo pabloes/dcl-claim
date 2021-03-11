@@ -9,7 +9,7 @@ contract Claimer {
     mapping (address => mapping(string => uint8)) private addressClaims; //player -> wearableId -> numClaimed
     address public signerAddress;
     uint8 public mintLimit = 13;
-    uint8 public totalMints = 0; 
+    uint8 private totalMints = 0; 
     
     constructor(ERC721Collection _collection) public {
         signerAddress = msg.sender;
@@ -22,6 +22,7 @@ contract Claimer {
     }
 
     function setMintLimit(uint8 newLimit) external {
+        require(msg.sender == signerAddress);
         mintLimit = newLimit;
     }
        
